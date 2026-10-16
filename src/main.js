@@ -7,6 +7,7 @@ import {
   resetCube,
   getBeadPositions
 } from './cube-rotation.js';
+import { installDragControls } from './drag-controls.js';
 
 // ============================================================
 // RUBIK'S RINGS — PLAYABLE PUZZLE
@@ -409,9 +410,11 @@ function animateBeads(before, after, clockwise) {
       start,
       end,
       
-    arc: isFacePosition(
-      oldPositions.get(bead.beadId),
-      selectedFace
+    arc: selectedFace.startsWith('middle')
+      ? sharedRing(start, end, clockwise)
+      : isFacePosition(
+        oldPositions.get(bead.beadId),
+        selectedFace
     )
       ? null
       : sharedRing(
@@ -752,6 +755,23 @@ document.addEventListener('keydown', event => {
 resetCube();
 updateFaceSelection();
 renderCube();
+
+installDragControls({
+  board: document.querySelector('#board'),
+  rings,
+  positions,
+  cubeMapping,
+  getBeadPositions,
+  turnFace,
+
+  onTurn(face, clockwise) {
+    if (animationInProgress) return;
+
+    selectedFace = face;
+    updateFaceSelection();
+    performTurn(clockwise);
+  }
+});
 
 console.log('Rubik’s Rings playable puzzle ready');
 console.log('54 sticker positions:', positions.size);

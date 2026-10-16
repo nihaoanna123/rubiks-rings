@@ -7,13 +7,15 @@ const directions = {
   magenta: { axis: 'y', sign:  1 },
   blue:    { axis: 'y', sign: -1 },
   cyan:    { axis: 'x', sign:  1 },
-  green:   { axis: 'x', sign: -1 }
+  green:   { axis: 'x', sign: -1 },
+
+  middleZ: { axis: 'z', sign: 0 },
+  middleY: { axis: 'y', sign: 0 },
+  middleX: { axis: 'x', sign: 0 }
 };
 
 function rotateVector(v, axis, quarterTurns) {
   let { x, y, z } = v;
-
-  // A positive quarter-turn follows the right-hand rule.
   const turns = ((quarterTurns % 4) + 4) % 4;
 
   for (let i = 0; i < turns; i++) {
@@ -36,7 +38,6 @@ function slotKey(cube, normal) {
   ].join(',');
 }
 
-// The 54 fixed locations in the solved diagram
 const positionBySlot = new Map(
   cubeMapping.map(sticker => [
     slotKey(sticker.cube, sticker.normal),
@@ -44,38 +45,32 @@ const positionBySlot = new Map(
   ])
 );
 
-// Each sticker retains its identity, but changes location.
-let stickers = cubeMapping.map(sticker => ({
-  beadId: sticker.beadId,
-  color: sticker.color,
-  pieceId: sticker.pieceId,
-  cube: { ...sticker.cube },
-  normal: { ...sticker.normal }
-}));
+function solvedStickers() {
+  return cubeMapping.map(sticker => ({
+    beadId: sticker.beadId,
+    color: sticker.color,
+    pieceId: sticker.pieceId,
+    cube: { ...sticker.cube },
+    normal: { ...sticker.normal }
+  }));
+}
 
+let stickers = solvedStickers();
 
 export function turnFace(face, clockwise = true) {
   const direction = directions[face];
 
   if (!direction) {
-    throw new Error(`Unknown face: ${face}`);
+    throw new Error(`Unknown layer: ${face}`);
   }
 
   const { axis, sign } = direction;
 
-  // Front-facing surfaces: yellow, magenta, cyan
-  // Back-facing surfaces: red, green, blue
-  //
-  // The back-facing surfaces are viewed from the
-  // opposite side in the exploded diagram.
-
-  const frontFacing = [
-    'yellow',
-    'magenta',
-    'cyan'
-  ].includes(face);
-
-  const turns = clockwise ? sign : -sign;
+  // Preserve the direction that worked in your diagram.
+  // Middle layers use the same positive/negative rotation.
+  const turns = clockwise
+  ? (sign === 0 ? 1 : sign)
+  : (sign === 0 ? -1 : -sign);
 
   stickers = stickers.map(sticker => {
     if (sticker.cube[axis] !== sign) {
@@ -92,15 +87,15 @@ export function turnFace(face, clockwise = true) {
   return getBeadPositions();
 }
 
-
 export function getBeadPositions() {
   return stickers.map(sticker => {
-    const key = slotKey(sticker.cube, sticker.normal);
-    const positionId = positionBySlot.get(key);
+    const positionId = positionBySlot.get(
+      slotKey(sticker.cube, sticker.normal)
+    );
 
     if (!positionId) {
       throw new Error(
-        `No 2D position for bead ${sticker.beadId}`
+        `Missing destination for ${sticker.beadId}`
       );
     }
 
@@ -113,13 +108,6 @@ export function getBeadPositions() {
 }
 
 export function resetCube() {
-  stickers = cubeMapping.map(sticker => ({
-    beadId: sticker.beadId,
-    color: sticker.color,
-    pieceId: sticker.pieceId,
-    cube: { ...sticker.cube },
-    normal: { ...sticker.normal }
-  }));
-
+  stickers = solvedStickers();
   return getBeadPositions();
 }
