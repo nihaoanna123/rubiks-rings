@@ -101,7 +101,7 @@ function updateBeadSymbols() {
 }
 
 let currentTheme = localStorage.getItem('rings-theme') || 'original';
-let appearance = localStorage.getItem('rings-appearance') || 'light';
+let appearance = localStorage.getItem('rings-appearance') || 'dark';
 
 function applyAppearance() {
   document.documentElement.dataset.appearance = appearance;
@@ -120,7 +120,11 @@ function applyBeadTheme() {
     updateBeadSymbols();
   }
       if (cube3D) {
-      cube3D.update(COLOR_THEMES[currentTheme]);
+          cube3D.update(
+      COLOR_THEMES[currentTheme],
+      currentTheme === 'Colorblind',
+      BEAD_SYMBOLS
+    );
     }
 
   localStorage.setItem('rings-theme', currentTheme);
@@ -489,7 +493,7 @@ function recordMove(face, clockwise) {
 
 
 
-const ANIMATION_DURATION = 700;
+const ANIMATION_DURATION = 525;
 
 let animationInProgress = false;
 
@@ -734,7 +738,11 @@ function renderCube(animate = false) {
 
 updateBeadSymbols();
   if (cube3D) {
-    cube3D.update(COLOR_THEMES[currentTheme]);
+    cube3D.update(
+      COLOR_THEMES[currentTheme],
+      currentTheme === 'Colorblind',
+      BEAD_SYMBOLS
+    );
   }
 }
 
@@ -1208,11 +1216,21 @@ document.querySelector('#show-3d')
         cube3D = createCube3D(
           container,
           cubeMapping,
-          getBeadPositions
+          getBeadPositions,
+          (face, clockwise) => {
+            if (animationInProgress) return;
+
+            selectedFace = face;
+            performTurn(clockwise);
+          }
         );
       }
 
-      cube3D.update(COLOR_THEMES[currentTheme]);
+      cube3D.update(
+        COLOR_THEMES[currentTheme],
+        currentTheme === 'Colorblind',
+        BEAD_SYMBOLS
+      );
     } else {
       container.style.display = 'none';
     }

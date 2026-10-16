@@ -160,13 +160,13 @@ svg circle.ring {
 
 .bead-theme-symbol {
   font-family: "Segoe UI Symbol", "DejaVu Sans", sans-serif;
-  font-size: 25px;
+  font-size: 18px;
   font-weight: 900;
 
-  fill: #fffaf0;
-  stroke: #263445;
-  stroke-width: 4px;
-  stroke-linejoin: round;
+  fill: #ebebeb;
+  stroke: #111112;
+  stroke-width: 7px;
+  stroke-linejoin: miter;
   paint-order: stroke fill;
 
   pointer-events: none;

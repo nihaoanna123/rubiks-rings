@@ -27,7 +27,12 @@ const ease = t =>
     ? 2 * t * t
     : 1 - Math.pow(-2 * t + 2, 2) / 2;
 
-export function createCube3D(container, cubeMapping, getBeadPositions) {
+export function createCube3D(
+  container,
+  cubeMapping,
+  getBeadPositions,
+  onTurn
+) {
   const scene = new THREE.Scene();
 
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
@@ -74,6 +79,16 @@ camera.lookAt(0, 0, 0);
       }
     }
   }
+
+    const hitbox = new THREE.Mesh(
+  new THREE.BoxGeometry(3, 3, 3),
+  new THREE.MeshBasicMaterial({
+    visible: false,
+    side: THREE.DoubleSide
+  })
+);
+
+cubeGroup.add(hitbox);  
 
   const stickerGeometry = new THREE.PlaneGeometry(0.82, 0.82);
   const stickers = new Map();
@@ -258,52 +273,264 @@ camera.lookAt(0, 0, 0);
     requestAnimationFrame(frame);
   }
 
-  let dragging = false;
-  let lastX = 0;
-  let lastY = 0;
 
   const canvas = renderer.domElement;
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+
+  const stickerIds = new Map(
+    [...stickers.entries()].map(([id, mesh]) => [mesh, id])
+  );
+
+  const stickerByPosition = new Map(
+  cubeMapping.map(slot => [
+    `${slot.cube.x},${slot.cube.y},${slot.cube.z}|` +
+    `${slot.normal.x},${slot.normal.y},${slot.normal.z}`,
+    slot.positionId
+  ])
+);
+
+  const FACE_BY_NORMAL = {
+    '0,0,1': 'yellow',
+    '0,0,-1': 'red',
+    '0,1,0': 'magenta',
+    '0,-1,0': 'blue',
+    '1,0,0': 'cyan',
+    '-1,0,0': 'green'
+  };
+
+  let drag = null;
+
+  function getStickerAt(event) {
+  const rect = canvas.getBoundingClientRect();
+
+  pointer.set(
+    ((event.clientX - rect.left) / rect.width) * 2 - 1,
+    -((event.clientY - rect.top) / rect.height) * 2 + 1
+  );
+
+  cubeGroup.updateMatrixWorld(true);
+  camera.updateMatrixWorld(true);
+  raycaster.setFromCamera(pointer, camera);
+
+  const hits = raycaster.intersectObject(hitbox);
+
+  if (!hits.length) return null;
+
+  const hit = hits[0];
+
+  // Convert the intersection to cube-local coordinates.
+  const localPoint = cubeGroup.worldToLocal(hit.point.clone());
+
+  const localNormal = hit.face.normal.clone();
+
+  // Determine which cube face was clicked.
+  const nx = Math.round(localNormal.x);
+  const ny = Math.round(localNormal.y);
+  const nz = Math.round(localNormal.z);
+
+  // Find the nearest sticker position on that face.
+  const x = nx !== 0 ? nx : Math.max(-1, Math.min(1, Math.round(localPoint.x)));
+  const y = ny !== 0 ? ny : Math.max(-1, Math.min(1, Math.round(localPoint.y)));
+  const z = nz !== 0 ? nz : Math.max(-1, Math.min(1, Math.round(localPoint.z)));
+
+  const positionId = stickerByPosition.get(
+    `${x},${y},${z}|${nx},${ny},${nz}`
+  );
+
+  if (!positionId) return null;
+
+  const bead = getBeadPositions().find(
+    item => item.positionId === positionId
+  );
+
+  return bead?.beadId ?? null;
+}
+
+
+function getStickerMove(beadId, dx, dy) {
+  const bead = getBeadPositions().find(
+    item => item.beadId === beadId
+  );
+  if (!bead) return null;
+
+  const slot = slotById.get(bead.positionId);
+  if (!slot) return null;
+
+  const normal = new THREE.Vector3(
+    slot.normal.x, slot.normal.y, slot.normal.z
+  );
+
+  const point = new THREE.Vector3(
+    slot.cube.x + normal.x * 0.501,
+    slot.cube.y + normal.y * 0.501,
+    slot.cube.z + normal.z * 0.501
+  );
+
+  cubeGroup.updateMatrixWorld(true);
+  camera.updateMatrixWorld(true);
+
+  const rect = canvas.getBoundingClientRect();
+
+  function screenPosition(localPoint) {
+    const projected = cubeGroup
+      .localToWorld(localPoint.clone())
+      .project(camera);
+
+    return new THREE.Vector2(
+      projected.x * rect.width / 2,
+      -projected.y * rect.height / 2
+    );
+  }
+
+  const start = screenPosition(point);
+  const dragLength = Math.hypot(dx, dy);
+  if (dragLength < 1) return null;
+
+  const dragDirection = new THREE.Vector2(
+    dx / dragLength,
+    dy / dragLength
+  );
+
+  let best = null;
+
+  for (const axis of ['x', 'y', 'z']) {
+    // Only axes lying in the clicked face are valid.
+    if (Math.abs(normal[axis]) > 0.5) continue;
+
+    const axisVector = new THREE.Vector3(
+      axis === 'x' ? 1 : 0,
+      axis === 'y' ? 1 : 0,
+      axis === 'z' ? 1 : 0
+    );
+
+    const movedPoint = point.clone()
+      .applyAxisAngle(axisVector, 0.05);
+
+    const end = screenPosition(movedPoint);
+    const displacement = end.sub(start);
+
+    if (displacement.lengthSq() < 0.000001) continue;
+
+    displacement.normalize();
+
+    const score = displacement.dot(dragDirection);
+
+    if (!best || Math.abs(score) > Math.abs(best.score)) {
+      best = { axis, score };
+    }
+  }
+
+  if (!best) return null;
+
+  const layer = Math.round(slot.cube[best.axis]);
+
+  const face = layer === 0
+    ? `middle${best.axis.toUpperCase()}`
+    : Object.keys(AXES).find(name =>
+        AXES[name][0] === best.axis &&
+        AXES[name][1] === layer
+      );
+
+  if (!face) return null;
+
+  const clockwise = layer === 0
+    ? best.score > 0
+    : layer > 0
+      ? best.score > 0
+      : best.score < 0;
+
+  return { face, clockwise };
+}
+
+
+  function rotateView(dx, dy, shiftKey) {
+    const cameraRight = new THREE.Vector3(1, 0, 0)
+      .applyQuaternion(camera.quaternion);
+
+    const cameraUp = new THREE.Vector3(0, 1, 0)
+      .applyQuaternion(camera.quaternion);
+
+    if (shiftKey) {
+      const cameraForward = new THREE.Vector3(0, 0, -1)
+        .applyQuaternion(camera.quaternion);
+
+      cubeGroup.rotateOnWorldAxis(
+        cameraForward,
+        dx * 0.008
+      );
+    } else {
+      cubeGroup.rotateOnWorldAxis(cameraUp, dx * 0.008);
+      cubeGroup.rotateOnWorldAxis(cameraRight, dy * 0.008);
+    }
+  }
+
+  canvas.style.touchAction = 'none';
+
+  canvas.addEventListener('contextmenu', event => {
+    event.preventDefault();
+  });
 
   canvas.addEventListener('pointerdown', event => {
-    dragging = true;
-    lastX = event.clientX;
-    lastY = event.clientY;
+    if (active) return;
+
+    const beadId = event.button === 0 && !event.shiftKey
+      ? getStickerAt(event)
+      : null;
+
+    drag = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      lastX: event.clientX,
+      lastY: event.clientY,
+      beadId,
+      mode: beadId ? 'sticker' : 'view',
+      committed: false
+    };
+
     canvas.setPointerCapture(event.pointerId);
   });
 
   canvas.addEventListener('pointermove', event => {
-    if (!dragging) return;
+    if (!drag || event.pointerId !== drag.pointerId) return;
 
-        const dx = event.clientX - lastX;
-        const dy = event.clientY - lastY;
+    const dx = event.clientX - drag.lastX;
+    const dy = event.clientY - drag.lastY;
 
-        const cameraRight = new THREE.Vector3(1, 0, 0)
-        .applyQuaternion(camera.quaternion);
+    if (drag.mode === 'view') {
+      rotateView(dx, dy, event.shiftKey);
+    } else if (!drag.committed && !active) {
+      const totalX = event.clientX - drag.startX;
+      const totalY = event.clientY - drag.startY;
 
-        const cameraUp = new THREE.Vector3(0, 1, 0)
-        .applyQuaternion(camera.quaternion);
+      if (Math.hypot(totalX, totalY) >= 15) {
+        const move = getStickerMove(
+          drag.beadId,
+          totalX,
+          totalY
+        );
 
-                if (event.shiftKey) {
-        const cameraForward = new THREE.Vector3(0, 0, -1)
-            .applyQuaternion(camera.quaternion);
-
-        cubeGroup.rotateOnWorldAxis(cameraForward, dx * 0.008);
-        } else {
-        cubeGroup.rotateOnWorldAxis(cameraUp, dx * 0.008);
-        cubeGroup.rotateOnWorldAxis(cameraRight, dy * 0.008);
+        if (move) {
+          drag.committed = true;
+          onTurn?.(move.face, move.clockwise);
         }
+      }
+    }
 
-    lastX = event.clientX;
-    lastY = event.clientY;
+    drag.lastX = event.clientX;
+    drag.lastY = event.clientY;
   });
 
-  canvas.addEventListener('pointerup', () => {
-    dragging = false;
-  });
+  function endDrag(event) {
+    if (drag?.pointerId === event.pointerId) {
+      drag = null;
+    }
+  }
 
-  canvas.addEventListener('pointercancel', () => {
-    dragging = false;
-  });
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
 
   function resize() {
     const width = container.clientWidth || 440;
