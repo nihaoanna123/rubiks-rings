@@ -9,6 +9,164 @@ import {
 } from './cube-rotation.js';
 import { installDragControls } from './drag-controls.js';
 
+
+const COLOR_THEMES = {
+  original: {
+  green: '#35ce5c',
+  yellow: '#ffe55b',
+  blue: '#4888ff',
+  magenta: '#e65acb',
+  cyan: '#47dce9',
+  red: '#f05252'
+},
+  classic: {
+    yellow: '#ffd500',
+    red: '#c41e3a',
+    magenta: '#ffffff',
+    blue: '#0051ba',
+    cyan: '#ff5800',
+    green: '#009b48'
+  },
+  Colorblind: {
+    yellow: '#F2D34F',
+    red: '#E76F51',
+    magenta: '#D68AC0',
+    blue: '#398ACB',
+    cyan: '#69C9E2',
+    green: '#39B89A'
+    }
+};
+
+const BEAD_SYMBOLS = {
+  yellow: '●',
+  red: '▲',
+  magenta: '■',
+  blue: '◆',
+  cyan: '✚',
+  green: '★'
+};
+
+const symbolElements = new Map();
+
+function centerSymbol(symbol, x, y) {
+  symbol.setAttribute('x', x);
+  symbol.setAttribute('y', y);
+
+  const box = symbol.getBBox();
+
+  symbol.setAttribute(
+    'x',
+    x + (x - (box.x + box.width / 2))
+  );
+
+  symbol.setAttribute(
+    'y',
+    y + (y - (box.y + box.height / 2))
+  );
+}
+
+function updateBeadSymbols() {
+  const showSymbols = currentTheme === 'Colorblind';
+  const currentPositions = getBeadPositions();
+
+  for (const bead of currentPositions) {
+    let symbol = symbolElements.get(bead.beadId);
+
+    if (!symbol) {
+      const circle = beadElements.get(bead.beadId);
+      if (!circle) continue;
+
+      symbol = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'text'
+      );
+
+      symbol.classList.add('bead-theme-symbol');
+      symbol.setAttribute('text-anchor', 'middle');
+      symbol.setAttribute('dominant-baseline', 'central');
+      symbol.textContent = BEAD_SYMBOLS[bead.color];
+
+      circle.parentNode.appendChild(symbol);
+      symbolElements.set(bead.beadId, symbol);
+    }
+
+    const position = positions.get(bead.positionId);
+    if (!position) continue;
+
+    centerSymbol(symbol, position.x, position.y);
+    symbol.style.display = showSymbols ? '' : 'none';
+  }
+}
+
+let currentTheme = localStorage.getItem('rings-theme') || 'original';
+let appearance = localStorage.getItem('rings-appearance') || 'light';
+
+function applyAppearance() {
+  document.documentElement.dataset.appearance = appearance;
+  localStorage.setItem('rings-appearance', appearance);
+}
+
+function applyBeadTheme() {
+  const palette = COLOR_THEMES[currentTheme];
+
+  for (const bead of cubeMapping) {
+    const circle = beadElements.get(bead.beadId);
+    if (circle) {
+      circle.setAttribute('fill', palette[bead.color]);
+    }
+
+    updateBeadSymbols();
+  }
+
+  localStorage.setItem('rings-theme', currentTheme);
+}
+
+function installThemeControls() {
+  const controls = document.createElement('div');
+  controls.className = 'theme-controls';
+
+  controls.innerHTML = `
+    <label>
+      Appearance
+      <select id="appearance-select">
+        <option value="light">Day mode</option>
+        <option value="dark">Night mode</option>
+      </select>
+    </label>
+
+    <label>
+      Bead theme
+      <select id="theme-select">
+        <option value="original">Original</option>
+        <option value="classic">Classic Rubik's</option>
+        <option value="Colorblind">Colorblind</option>
+      </select>
+    </label>
+  `;
+
+  const board = document.querySelector('svg');
+  board.parentElement.insertBefore(controls, board);
+
+  const appearanceSelect = controls.querySelector('#appearance-select');
+  const themeSelect = controls.querySelector('#theme-select');
+
+  appearanceSelect.value = appearance;
+  themeSelect.value = currentTheme;
+
+  appearanceSelect.addEventListener('change', event => {
+    appearance = event.target.value;
+    applyAppearance();
+  });
+
+  themeSelect.addEventListener('change', event => {
+    currentTheme = event.target.value;
+    applyBeadTheme();
+  });
+
+  applyAppearance();
+  applyBeadTheme();
+}
+
 // ============================================================
 // RUBIK'S RINGS — PLAYABLE PUZZLE
 // ============================================================
@@ -113,13 +271,16 @@ document.querySelector('#app').innerHTML = `
     font-family: Arial, sans-serif;
   ">
     <h1 style="margin-bottom: 6px">
-      Rubik's Rings
-    </h1>
+  Rubik's Rings
+  <span style="
+    font-size: 14px;
+    font-weight: normal;
+    opacity: 0.65;
+    margin-left: 8px;
+  ">by nihaoanna123</span>
+</h1>
 
-    <p style="margin-top: 0">
-      Select a face, then rotate it clockwise or
-      counterclockwise.
-    </p>
+
 
     <div id="face-controls" style="
       display: flex;
@@ -128,34 +289,49 @@ document.querySelector('#app').innerHTML = `
       margin: 16px 0;
     "></div>
 
-    <div style="
+        <div style="
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       align-items: center;
       margin-bottom: 12px;
     ">
-      <button id="clockwise" type="button">
-        Clockwise ↻
-      </button>
-
-      <button id="counterclockwise" type="button">
-        Counterclockwise ↺
-      </button>
-
       <button id="undo" type="button">
         Undo
+      </button>
+
+      <button id="redo" type="button">
+        Redo
       </button>
 
       <button id="reset" type="button">
         Reset Cube
       </button>
 
+      <button id="scramble" type="button">Scramble</button>
+
+      <button id="solve" type="button">Solve</button>
+
+      <button id="next-solution-step" type="button">
+          Next Step
+        </button>
+
       <label style="cursor: pointer">
         <input id="show-ids" type="checkbox">
         Bead IDs
       </label>
+
+      <span id="move-count" style="
+        margin-left: 12px;
+        font-weight: 600;
+      "></span>
     </div>
+
+        <p class="puzzle-instructions">
+      Drag the rings or beads to rotate them.
+      Left-click a center bead to turn that face counterclockwise.
+      Right-click a center bead to turn that face clockwise.
+    </p>
 
     <p id="status" style="
       font-weight: bold;
@@ -165,14 +341,8 @@ document.querySelector('#app').innerHTML = `
     <svg
       id="board"
       viewBox="0 0 ${WIDTH} ${HEIGHT}"
+      preserveAspectRatio="xMidYMid meet"
       xmlns="${SVG_NS}"
-      style="
-        display: block;
-        width: 100%;
-        height: auto;
-        background: #14171c;
-        border-radius: 12px;
-      "
     >
       <g id="ring-layer"></g>
       <g id="bead-layer"></g>
@@ -182,7 +352,6 @@ document.querySelector('#app').innerHTML = `
       ></g>
     </svg>
 
-    <p id="move-count"></p>
   </main>
 `;
 
@@ -238,7 +407,7 @@ for (const ring of rings) {
     r: ring.radius,
     fill: 'none',
     stroke: '#6c7480',
-    'stroke-width': 2
+    'stroke-width': 2.5
   }, ringLayer);
 }
 
@@ -292,6 +461,18 @@ for (const sticker of cubeMapping) {
 
 let selectedFace = 'yellow';
 let history = [];
+let redoHistory = [];
+
+let solutionHistory = [];
+let scrambleHistory = [];
+
+function recordMove(face, clockwise) {
+  const move = { face, clockwise };
+
+  history.push(move);
+  solutionHistory.push(move);
+  redoHistory.length = 0;
+}
 
 
 
@@ -476,6 +657,13 @@ function animateBeads(before, after, clockwise) {
 
       label.setAttribute('x', x);
       label.setAttribute('y', y + 4);
+
+      const symbol = symbolElements.get(movement.beadId);
+
+      if (symbol) {
+        symbol.style.transition = 'none';
+        centerSymbol(symbol, x, y);
+      }
     }
 
     if (progress < 1) {
@@ -483,6 +671,7 @@ function animateBeads(before, after, clockwise) {
     } else {
       animationInProgress = false;
       renderCube(false);
+      checkForWin();
     }
   }
 
@@ -529,58 +718,129 @@ function renderCube(animate = false) {
 
   document.querySelector('#undo').disabled =
     history.length === 0;
+
+updateBeadSymbols();
 }
 
 // ============================================================
-// FACE SELECTION
+// WIN CONDITION
 // ============================================================
 
-const faceControls =
-  document.querySelector('#face-controls');
+let hasWon = false;
 
-const faceButtons = new Map();
+function isCubeSolved() {
+  const current = getBeadPositions();
 
-for (const face of FACE_NAMES) {
-  const button = document.createElement('button');
+  // Each fixed position has a face normal in cubeMapping.
+  const faceColors = new Map();
 
-  button.type = 'button';
-  button.textContent =
-    face[0].toUpperCase() + face.slice(1);
+  for (const bead of current) {
+    const slot = cubeMapping.find(
+      item => item.positionId === bead.positionId
+    );
 
-  button.style.cssText = `
-    background: ${COLORS[face]};
-    color: #151515;
-    border: 3px solid transparent;
-    border-radius: 8px;
-    padding: 10px 16px;
-    font-weight: bold;
-    cursor: pointer;
-  `;
+    if (!slot) return false;
 
-  button.addEventListener('click', () => {
-    selectedFace = face;
-    updateFaceSelection();
-  });
+    const faceKey = [
+      slot.normal.x,
+      slot.normal.y,
+      slot.normal.z
+    ].join(',');
 
-  faceControls.appendChild(button);
-  faceButtons.set(face, button);
-}
+    if (!faceColors.has(faceKey)) {
+      faceColors.set(faceKey, new Set());
+    }
 
-function updateFaceSelection() {
-  for (const [face, button] of faceButtons) {
-    button.style.borderColor =
-      face === selectedFace
-        ? '#ffffff'
-        : 'transparent';
-
-    button.style.outline =
-      face === selectedFace
-        ? '2px solid #333333'
-        : 'none';
+    faceColors.get(faceKey).add(bead.color);
   }
 
-  status.textContent =
-    `Selected face: ${selectedFace.toUpperCase()}`;
+  return (
+    faceColors.size === 6 &&
+    [...faceColors.values()].every(colors => colors.size === 1)
+  );
+}
+
+function checkForWin() {
+  const solved = isCubeSolved();
+
+  if (solved && !hasWon) {
+    hasWon = true;
+    status.textContent = 'Puzzle solved!';
+    launchConfetti();
+  } else if (!solved) {
+    hasWon = false;
+  }
+}
+
+function launchConfetti() {
+  const canvas = document.createElement('canvas');
+  canvas.className = 'win-confetti';
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext('2d');
+  const colors = [
+    '#f5c542', '#ff5b57', '#e879db',
+    '#5788ff', '#42d9dc', '#58d68d'
+  ];
+
+  let width;
+  let height;
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+
+  resize();
+
+  const particles = Array.from({ length: 110 }, () => ({
+    x: width / 2,
+    y: height * 0.35,
+    vx: (Math.random() - 0.5) * 15,
+    vy: -Math.random() * 12 - 2,
+    gravity: 0.22 + Math.random() * 0.14,
+    size: 4 + Math.random() * 6,
+    angle: Math.random() * Math.PI * 2,
+    spin: (Math.random() - 0.5) * 0.25,
+    color: colors[Math.floor(Math.random() * colors.length)]
+  }));
+
+  const start = performance.now();
+
+  function frame(now) {
+    ctx.clearRect(0, 0, width, height);
+
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += p.gravity;
+      p.angle += p.spin;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+      ctx.restore();
+    }
+
+    if (now - start < 1800) {
+      requestAnimationFrame(frame);
+    } else {
+      canvas.remove();
+    }
+  }
+
+  requestAnimationFrame(frame);
+}
+
+// ============================================================
+// FACE SELECTION — controlled by dragging and center clicks
+// ============================================================
+
+// Keep this function because the drag controls still call it.
+function updateFaceSelection() {
+  status.textContent = '';
 }
 
 // ============================================================
@@ -639,7 +899,6 @@ defs.innerHTML = `
 
 document.querySelector('#board').prepend(defs);
 
-
 function performTurn(clockwise) {
   if (animationInProgress) return;
 
@@ -649,10 +908,8 @@ function performTurn(clockwise) {
 
   const after = getBeadPositions();
 
-  history.push({
-    face: selectedFace,
-    clockwise
-  });
+  recordMove(selectedFace, clockwise);
+  redoHistory.length = 0;
 
   animateBeads(before, after, clockwise);
 
@@ -664,16 +921,106 @@ function performTurn(clockwise) {
     `Moves: ${history.length}`;
 }
 
+const SCRAMBLE_LAYERS = [
+  'yellow', 'red',
+  'magenta', 'blue',
+  'cyan', 'green',
+  'middleX', 'middleY', 'middleZ'
+];
 
-document.querySelector('#clockwise')
-  .addEventListener('click', () => {
-    performTurn(true);
-  });
+function scrambleCube() {
+  if (animationInProgress) return;
+    solutionSteps = [];
+  solutionIndex = 0;
+  solutionHistory = [];
+  scrambleHistory = [];
 
-document.querySelector('#counterclockwise')
-  .addEventListener('click', () => {
-    performTurn(false);
-  });
+  const scrambleLength = 25;
+  let previousFace = null;
+
+  // A new scramble establishes a new starting state.
+  resetCube();
+  history = [];
+  redoHistory = [];
+  solutionHistory = [];
+  scrambleHistory = [];
+
+  for (let i = 0; i < scrambleLength; i++) {
+    const choices = SCRAMBLE_LAYERS.filter(
+      face => face !== previousFace
+    );
+
+    const face = choices[
+      Math.floor(Math.random() * choices.length)
+    ];
+
+    const clockwise = Math.random() < 0.5;
+
+    turnFace(face, clockwise);
+
+    const move = { face, clockwise };
+
+    scrambleHistory.push(move);
+    solutionHistory.push(move);
+
+    previousFace = face;
+  }
+
+  renderCube(false);
+  status.textContent = 'Cube scrambled!';
+  hasWon = false;
+
+  // Undo is disabled until the player makes a move.
+}
+
+let solutionSteps = [];
+let solutionIndex = 0;
+
+function prepareSolution() {
+  if (animationInProgress) return;
+
+  solutionSteps = [...solutionHistory]
+    .reverse()
+    .map(move => ({
+      face: move.face,
+      clockwise: !move.clockwise
+    }));
+
+  solutionIndex = 0;
+
+  status.textContent =
+    `Solution ready: ${solutionSteps.length} steps.`;
+}
+
+function nextSolutionStep() {
+  if (animationInProgress) return;
+  if (solutionSteps.length === 0) {
+  status.textContent = 'No solution in progress.';
+  return;
+}
+
+  if (solutionIndex >= solutionSteps.length) {
+    status.textContent = 'Solution complete!';
+    return;
+  }
+
+  const move = solutionSteps[solutionIndex];
+
+  selectedFace = move.face;
+
+  const before = getBeadPositions();
+
+  turnFace(move.face, move.clockwise);
+
+  const after = getBeadPositions();
+
+  animateBeads(before, after, move.clockwise);
+
+  solutionIndex++;
+
+  status.textContent =
+    `Solution step ${solutionIndex} of ${solutionSteps.length}`;
+}
 
 // ============================================================
 // UNDO
@@ -681,21 +1028,30 @@ document.querySelector('#counterclockwise')
 
 document.querySelector('#undo')
   .addEventListener('click', () => {
-    if (animationInProgress) return;
-    if (history.length === 0) return;
+    if (animationInProgress || history.length === 0) return;
 
     const lastMove = history.pop();
+    solutionHistory.pop();
+    redoHistory.push(lastMove);
 
-    // Apply the inverse of the previous move.
-    turnFace(
-      lastMove.face,
-      !lastMove.clockwise
-    );
-
+    turnFace(lastMove.face, !lastMove.clockwise);
     renderCube(true);
 
-    status.textContent =
-      `Undid ${lastMove.face} turn`;
+    status.textContent = `Undid ${lastMove.face} turn`;
+  });
+
+document.querySelector('#redo')
+  .addEventListener('click', () => {
+    if (animationInProgress || redoHistory.length === 0) return;
+
+    const move = redoHistory.pop();
+    solutionHistory.push(move);
+    history.push(move);
+
+    turnFace(move.face, move.clockwise);
+    renderCube(true);
+
+    status.textContent = `Redid ${move.face} turn`;
   });
 
 // ============================================================
@@ -707,8 +1063,14 @@ document.querySelector('#reset')
     if (animationInProgress) return;
     resetCube();
     history = [];
+    solutionHistory = [];
+    scrambleHistory = [];
+
+    solutionSteps = [];
+    solutionIndex = 0;
 
     renderCube();
+    redoHistory.length = 0;
 
     status.textContent =
       'Cube reset to solved position';
@@ -748,6 +1110,15 @@ document.addEventListener('keydown', event => {
   }
 });
 
+document.querySelector('#scramble')
+  .addEventListener('click', scrambleCube);
+
+document.querySelector('#solve')
+  .addEventListener('click', prepareSolution);
+
+document.querySelector('#next-solution-step')
+  .addEventListener('click', nextSolutionStep);
+
 // ============================================================
 // INITIALIZE
 // ============================================================
@@ -755,6 +1126,7 @@ document.addEventListener('keydown', event => {
 resetCube();
 updateFaceSelection();
 renderCube();
+
 
 installDragControls({
   board: document.querySelector('#board'),
@@ -772,6 +1144,9 @@ installDragControls({
     performTurn(clockwise);
   }
 });
+
+
+installThemeControls();
 
 console.log('Rubik’s Rings playable puzzle ready');
 console.log('54 sticker positions:', positions.size);

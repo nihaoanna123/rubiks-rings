@@ -51,3 +51,208 @@ button {
 button:hover {
   background: #6666cc;
 }
+
+
+/* Day mode */
+:root,
+:root[data-appearance="light"] {
+  color-scheme: light;
+  --theme-bg: #f5f3ef;
+  --theme-surface: #ffffff;
+  --theme-text: #26313b;
+  --theme-border: #d8dce2;
+}
+
+/* Night mode — softer than a black background */
+:root[data-appearance="dark"] {
+  color-scheme: dark;
+  --theme-bg: #252c38;
+  --theme-surface: #343d4b;
+  --theme-text: #f0f2f5;
+  --theme-border: #596575;
+}
+
+body {
+  background: var(--theme-bg) !important;
+  color: var(--theme-text);
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.theme-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 16px auto 22px;
+}
+
+.theme-controls label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--theme-text);
+}
+
+.theme-controls select {
+  appearance: auto;
+  padding: 9px 12px;
+  border: 1px solid var(--theme-border);
+  border-radius: 9px;
+  background: var(--theme-surface);
+  color: var(--theme-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.bead-symbol {
+  font-size: 14px;
+  font-weight: 800;
+  fill: #fffaf0;
+  stroke: #263445;
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
+  stroke: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+:root[data-appearance="dark"] .theme-controls select {
+  background: var(--theme-surface);
+  color: var(--theme-text);
+}
+
+/* Match the puzzle background to the selected appearance */
+
+:root[data-appearance="light"] {
+  --theme-bg: #fcfbfa;
+  --theme-surface: #ffffff;
+  --theme-board: #ffffff;
+  --theme-ring: #a6adb8;
+}
+
+:root[data-appearance="dark"] {
+  --theme-bg: #252c38;
+  --theme-surface: #343d4b;
+  --theme-board: #232932;
+  --theme-ring: #8793a5;
+}
+
+/* Puzzle SVG itself */
+svg {
+  background: var(--theme-board) !important;
+  border-radius: 16px;
+  transition: background 180ms ease;
+}
+
+/* If the SVG contains a full-size black background rectangle */
+svg rect:first-child {
+  fill: var(--theme-board) !important;
+}
+
+/* Ring outlines */
+svg circle.ring {
+  stroke: var(--theme-ring);
+}
+
+.bead-theme-symbol {
+  font-family: "Segoe UI Symbol", "DejaVu Sans", sans-serif;
+  font-size: 25px;
+  font-weight: 900;
+
+  fill: #fffaf0;
+  stroke: #263445;
+  stroke-width: 4px;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
+
+  pointer-events: none;
+  user-select: none;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+
+#face-controls {
+  display: none;
+}
+
+.win-confetti {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Responsive puzzle sizing */
+#board {
+  display: block;
+  width: min(100%, 680px);
+  height: auto;
+  max-height: 65vh;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.puzzle-instructions {
+  max-width: 650px;
+  margin: 12px auto;
+  text-align: center;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Tighter spacing between toolbar, themes, and instructions */
+
+.theme-controls {
+  margin: 4px auto 6px !important;
+  gap: 12px;
+}
+
+.puzzle-instructions {
+  max-width: 850px;
+  margin: 6px auto 10px !important;
+  font-size: 18px !important;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Reduce excess spacing around the toolbar */
+#face-controls {
+  display: none;
+}
+
+#rings-game {
+  padding-top: 12px !important;
+}
+
+#rings-game h1 {
+  margin-top: 0;
+  margin-bottom: 12px !important;
+}
+
+.puzzle-instructions {
+  max-width: 900px;
+  margin: 4px auto 8px !important;
+  font-size: 19px !important;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.theme-controls {
+  margin: 4px auto 8px !important;
+}
+
+#status {
+  min-height: 0 !important;
+  margin: 4px 0 !important;
+}
+
+#move-count {
+  margin: 6px 0;
+}
