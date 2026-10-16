@@ -1,0 +1,848 @@
+{
+  "version": 2,
+  "geometry": {
+    "width": 1048,
+    "height": 925,
+    "innerRadius": 195,
+    "ringSpacing": 55,
+    "centerDistance": 240,
+    "centerX": 546,
+    "centerY": 484
+  },
+  "corners": [
+    {
+      "id": "C01",
+      "beadIds": [
+        "B15",
+        "B34",
+        "B37"
+      ],
+      "beads": [
+        {
+          "beadId": "B15",
+          "color": "yellow",
+          "positionId": "P23",
+          "x": 546,
+          "y": 399.577771,
+          "rings": [
+            "L0",
+            "R0"
+          ]
+        },
+        {
+          "beadId": "B34",
+          "color": "magenta",
+          "positionId": "P34",
+          "x": 472.888205,
+          "y": 526.211115,
+          "rings": [
+            "U0",
+            "R0"
+          ]
+        },
+        {
+          "beadId": "B37",
+          "color": "cyan",
+          "positionId": "P35",
+          "x": 619.111795,
+          "y": 526.211115,
+          "rings": [
+            "U0",
+            "L0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C02",
+      "beadIds": [
+        "B09",
+        "B28",
+        "B10"
+      ],
+      "beads": [
+        {
+          "beadId": "B09",
+          "color": "green",
+          "positionId": "P19",
+          "x": 352.888205,
+          "y": 372.506853,
+          "rings": [
+            "U0",
+            "L0"
+          ]
+        },
+        {
+          "beadId": "B28",
+          "color": "magenta",
+          "positionId": "P26",
+          "x": 379.898545,
+          "y": 447.589283,
+          "rings": [
+            "U0",
+            "R2"
+          ]
+        },
+        {
+          "beadId": "B10",
+          "color": "yellow",
+          "positionId": "P15",
+          "x": 431.416667,
+          "y": 358.357278,
+          "rings": [
+            "L0",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C03",
+      "beadIds": [
+        "B18",
+        "B21",
+        "B43"
+      ],
+      "beads": [
+        {
+          "beadId": "B18",
+          "color": "yellow",
+          "positionId": "P16",
+          "x": 660.583333,
+          "y": 358.357278,
+          "rings": [
+            "L2",
+            "R0"
+          ]
+        },
+        {
+          "beadId": "B21",
+          "color": "blue",
+          "positionId": "P20",
+          "x": 739.111795,
+          "y": 372.506853,
+          "rings": [
+            "U0",
+            "R0"
+          ]
+        },
+        {
+          "beadId": "B43",
+          "color": "cyan",
+          "positionId": "P27",
+          "x": 712.101455,
+          "y": 447.589283,
+          "rings": [
+            "U0",
+            "L2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C04",
+      "beadIds": [
+        "B36",
+        "B49",
+        "B39"
+      ],
+      "beads": [
+        {
+          "beadId": "B36",
+          "color": "magenta",
+          "positionId": "P44",
+          "x": 494.481878,
+          "y": 646.053438,
+          "rings": [
+            "U2",
+            "R0"
+          ]
+        },
+        {
+          "beadId": "B49",
+          "color": "red",
+          "positionId": "P46",
+          "x": 546,
+          "y": 706.986294,
+          "rings": [
+            "L0",
+            "R0"
+          ]
+        },
+        {
+          "beadId": "B39",
+          "color": "cyan",
+          "positionId": "P45",
+          "x": 597.518122,
+          "y": 646.053438,
+          "rings": [
+            "U2",
+            "L0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C05",
+      "beadIds": [
+        "B03",
+        "B30",
+        "B46"
+      ],
+      "beads": [
+        {
+          "beadId": "B03",
+          "color": "green",
+          "positionId": "P28",
+          "x": 259.898545,
+          "y": 451.128684,
+          "rings": [
+            "U2",
+            "L0"
+          ]
+        },
+        {
+          "beadId": "B30",
+          "color": "magenta",
+          "positionId": "P40",
+          "x": 363.16518,
+          "y": 589.559733,
+          "rings": [
+            "U2",
+            "R2"
+          ]
+        },
+        {
+          "beadId": "B46",
+          "color": "red",
+          "positionId": "P49",
+          "x": 431.416667,
+          "y": 748.206786,
+          "rings": [
+            "L0",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C06",
+      "beadIds": [
+        "B45",
+        "B27",
+        "B54"
+      ],
+      "beads": [
+        {
+          "beadId": "B45",
+          "color": "cyan",
+          "positionId": "P41",
+          "x": 728.83482,
+          "y": 589.559733,
+          "rings": [
+            "U2",
+            "L2"
+          ]
+        },
+        {
+          "beadId": "B27",
+          "color": "blue",
+          "positionId": "P29",
+          "x": 832.101455,
+          "y": 451.128684,
+          "rings": [
+            "U2",
+            "R0"
+          ]
+        },
+        {
+          "beadId": "B54",
+          "color": "red",
+          "positionId": "P50",
+          "x": 660.583333,
+          "y": 748.206786,
+          "rings": [
+            "L2",
+            "R0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C07",
+      "beadIds": [
+        "B07",
+        "B13",
+        "B19"
+      ],
+      "beads": [
+        {
+          "beadId": "B07",
+          "color": "green",
+          "positionId": "P01",
+          "x": 374.481878,
+          "y": 252.664529,
+          "rings": [
+            "U0",
+            "L2"
+          ]
+        },
+        {
+          "beadId": "B13",
+          "color": "yellow",
+          "positionId": "P05",
+          "x": 546,
+          "y": 272.880534,
+          "rings": [
+            "L2",
+            "R2"
+          ]
+        },
+        {
+          "beadId": "B19",
+          "color": "blue",
+          "positionId": "P02",
+          "x": 717.518122,
+          "y": 252.664529,
+          "rings": [
+            "U0",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "C08",
+      "beadIds": [
+        "B01",
+        "B25",
+        "B51"
+      ],
+      "beads": [
+        {
+          "beadId": "B01",
+          "color": "green",
+          "positionId": "P06",
+          "x": 243.16518,
+          "y": 309.158235,
+          "rings": [
+            "U2",
+            "L2"
+          ]
+        },
+        {
+          "beadId": "B25",
+          "color": "blue",
+          "positionId": "P07",
+          "x": 848.83482,
+          "y": 309.158235,
+          "rings": [
+            "U2",
+            "R2"
+          ]
+        },
+        {
+          "beadId": "B51",
+          "color": "red",
+          "positionId": "P54",
+          "x": 546,
+          "y": 833.68353,
+          "rings": [
+            "L2",
+            "R2"
+          ]
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "E01",
+      "beadIds": [
+        "B04",
+        "B22"
+      ],
+      "beads": [
+        {
+          "beadId": "B04",
+          "color": "green",
+          "positionId": "P03",
+          "x": 306.873308,
+          "y": 272.508402,
+          "rings": [
+            "U1",
+            "L2"
+          ]
+        },
+        {
+          "beadId": "B22",
+          "color": "blue",
+          "positionId": "P04",
+          "x": 785.126692,
+          "y": 272.508402,
+          "rings": [
+            "U1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E02",
+      "beadIds": [
+        "B16",
+        "B20"
+      ],
+      "beads": [
+        {
+          "beadId": "B16",
+          "color": "yellow",
+          "positionId": "P09",
+          "x": 609.59375,
+          "y": 309.728476,
+          "rings": [
+            "L2",
+            "R1"
+          ]
+        },
+        {
+          "beadId": "B20",
+          "color": "blue",
+          "positionId": "P11",
+          "x": 738.451154,
+          "y": 314.010575,
+          "rings": [
+            "U0",
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E03",
+      "beadIds": [
+        "B11",
+        "B08"
+      ],
+      "beads": [
+        {
+          "beadId": "B11",
+          "color": "yellow",
+          "positionId": "P08",
+          "x": 482.40625,
+          "y": 309.728476,
+          "rings": [
+            "L1",
+            "R2"
+          ]
+        },
+        {
+          "beadId": "B08",
+          "color": "green",
+          "positionId": "P10",
+          "x": 353.548846,
+          "y": 314.010575,
+          "rings": [
+            "U0",
+            "L1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E04",
+      "beadIds": [
+        "B02",
+        "B48"
+      ],
+      "beads": [
+        {
+          "beadId": "B02",
+          "color": "green",
+          "positionId": "P21",
+          "x": 243.279558,
+          "y": 382.656009,
+          "rings": [
+            "U2",
+            "L1"
+          ]
+        },
+        {
+          "beadId": "B48",
+          "color": "red",
+          "positionId": "P52",
+          "x": 482.40625,
+          "y": 796.835589,
+          "rings": [
+            "L1",
+            "R2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E05",
+      "beadIds": [
+        "B53",
+        "B26"
+      ],
+      "beads": [
+        {
+          "beadId": "B53",
+          "color": "red",
+          "positionId": "P53",
+          "x": 609.59375,
+          "y": 796.835589,
+          "rings": [
+            "L2",
+            "R1"
+          ]
+        },
+        {
+          "beadId": "B26",
+          "color": "blue",
+          "positionId": "P22",
+          "x": 848.720442,
+          "y": 382.656009,
+          "rings": [
+            "U2",
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E06",
+      "beadIds": [
+        "B33",
+        "B47"
+      ],
+      "beads": [
+        {
+          "beadId": "B33",
+          "color": "magenta",
+          "positionId": "P42",
+          "x": 426.873308,
+          "y": 626.209565,
+          "rings": [
+            "U2",
+            "R1"
+          ]
+        },
+        {
+          "beadId": "B47",
+          "color": "red",
+          "positionId": "P47",
+          "x": 495.010417,
+          "y": 735.662301,
+          "rings": [
+            "L0",
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E07",
+      "beadIds": [
+        "B29",
+        "B06"
+      ],
+      "beads": [
+        {
+          "beadId": "B29",
+          "color": "magenta",
+          "positionId": "P32",
+          "x": 363.279558,
+          "y": 516.061959,
+          "rings": [
+            "U1",
+            "R2"
+          ]
+        },
+        {
+          "beadId": "B06",
+          "color": "green",
+          "positionId": "P24",
+          "x": 302.559263,
+          "y": 402.327124,
+          "rings": [
+            "U1",
+            "L0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E08",
+      "beadIds": [
+        "B31",
+        "B12"
+      ],
+      "beads": [
+        {
+          "beadId": "B31",
+          "color": "magenta",
+          "positionId": "P30",
+          "x": 422.559263,
+          "y": 496.390844,
+          "rings": [
+            "U0",
+            "R1"
+          ]
+        },
+        {
+          "beadId": "B12",
+          "color": "yellow",
+          "positionId": "P17",
+          "x": 495.010417,
+          "y": 370.901764,
+          "rings": [
+            "L0",
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E09",
+      "beadIds": [
+        "B17",
+        "B40"
+      ],
+      "beads": [
+        {
+          "beadId": "B17",
+          "color": "yellow",
+          "positionId": "P18",
+          "x": 596.989583,
+          "y": 370.901764,
+          "rings": [
+            "L1",
+            "R0"
+          ]
+        },
+        {
+          "beadId": "B40",
+          "color": "cyan",
+          "positionId": "P31",
+          "x": 669.440737,
+          "y": 496.390844,
+          "rings": [
+            "U0",
+            "L1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E10",
+      "beadIds": [
+        "B42",
+        "B52"
+      ],
+      "beads": [
+        {
+          "beadId": "B42",
+          "color": "cyan",
+          "positionId": "P43",
+          "x": 665.126692,
+          "y": 626.209565,
+          "rings": [
+            "U2",
+            "L1"
+          ]
+        },
+        {
+          "beadId": "B52",
+          "color": "red",
+          "positionId": "P48",
+          "x": 596.989583,
+          "y": 735.662301,
+          "rings": [
+            "L1",
+            "R0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E11",
+      "beadIds": [
+        "B24",
+        "B44"
+      ],
+      "beads": [
+        {
+          "beadId": "B24",
+          "color": "blue",
+          "positionId": "P25",
+          "x": 789.440737,
+          "y": 402.327124,
+          "rings": [
+            "U1",
+            "R0"
+          ]
+        },
+        {
+          "beadId": "B44",
+          "color": "cyan",
+          "positionId": "P33",
+          "x": 728.720442,
+          "y": 516.061959,
+          "rings": [
+            "U1",
+            "L2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E12",
+      "beadIds": [
+        "B38",
+        "B35"
+      ],
+      "beads": [
+        {
+          "beadId": "B38",
+          "color": "cyan",
+          "positionId": "P39",
+          "x": 618.451154,
+          "y": 584.707393,
+          "rings": [
+            "U1",
+            "L0"
+          ]
+        },
+        {
+          "beadId": "B35",
+          "color": "magenta",
+          "positionId": "P38",
+          "x": 473.548846,
+          "y": 584.707393,
+          "rings": [
+            "U1",
+            "R0"
+          ]
+        }
+      ]
+    }
+  ],
+  "centers": [
+    {
+      "id": "M01",
+      "beadIds": [
+        "B05"
+      ],
+      "beads": [
+        {
+          "beadId": "B05",
+          "color": "green",
+          "positionId": "P13",
+          "x": 296.065801,
+          "y": 339.700423,
+          "rings": [
+            "U1",
+            "L1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M02",
+      "beadIds": [
+        "B14"
+      ],
+      "beads": [
+        {
+          "beadId": "B14",
+          "color": "yellow",
+          "positionId": "P12",
+          "x": 546,
+          "y": 333.96491,
+          "rings": [
+            "L1",
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M03",
+      "beadIds": [
+        "B23"
+      ],
+      "beads": [
+        {
+          "beadId": "B23",
+          "color": "blue",
+          "positionId": "P14",
+          "x": 795.934199,
+          "y": 339.700423,
+          "rings": [
+            "U1",
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M04",
+      "beadIds": [
+        "B32"
+      ],
+      "beads": [
+        {
+          "beadId": "B32",
+          "color": "magenta",
+          "positionId": "P36",
+          "x": 416.065801,
+          "y": 559.017545,
+          "rings": [
+            "U1",
+            "R1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M05",
+      "beadIds": [
+        "B41"
+      ],
+      "beads": [
+        {
+          "beadId": "B41",
+          "color": "cyan",
+          "positionId": "P37",
+          "x": 675.934199,
+          "y": 559.017545,
+          "rings": [
+            "U1",
+            "L1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M06",
+      "beadIds": [
+        "B50"
+      ],
+      "beads": [
+        {
+          "beadId": "B50",
+          "color": "red",
+          "positionId": "P51",
+          "x": 546,
+          "y": 772.599154,
+          "rings": [
+            "L1",
+            "R1"
+          ]
+        }
+      ]
+    }
+  ]
+}

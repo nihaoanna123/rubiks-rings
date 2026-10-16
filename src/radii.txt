@@ -1,0 +1,20 @@
+Fitted circle: Objectcx: 546.32cy: 345.16radius: 305.31[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 547.33cy: 349.2radius: 305.87[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 546.79cy: 347.39radius: 306.1[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 545.39cy: 344.59radius: 305.89[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 546.35cy: 347.53radius: 250.86[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 547.06cy: 346.44radius: 250.59[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 544.64cy: 344.92radius: 194.52[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 547.06cy: 344.33radius: 194.14[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 545.43cy: 344.5radius: 193.59[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 546.85cy: 346.78radius: 194.04[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 424.62cy: 552.75radius: 305.02[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 424.6cy: 553.37radius: 306.02[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 425.3cy: 553.88radius: 250.15[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 425.44cy: 552.27radius: 195.32[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 424.72cy: 552.33radius: 194.24[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 667.51cy: 553.89radius: 305.36[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 666.17cy: 554.41radius: 305.72[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 668.46cy: 556.05radius: 251.37[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 666.92cy: 552.83radius: 250.2[[Prototype]]: Object
+main.js:126 Fitted circle: Objectcx: 666.57cy: 552.51radius: 194.61[[Prototype]]: Object
