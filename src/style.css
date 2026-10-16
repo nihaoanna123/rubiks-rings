@@ -128,17 +128,17 @@ body {
 /* Match the puzzle background to the selected appearance */
 
 :root[data-appearance="light"] {
-  --theme-bg: #fcfbfa;
+  --theme-bg: #e9edf2;
   --theme-surface: #ffffff;
   --theme-board: #ffffff;
-  --theme-ring: #a6adb8;
+  --theme-ring: #8c94a1;
 }
 
 :root[data-appearance="dark"] {
-  --theme-bg: #252c38;
+  --theme-bg: #151922;
   --theme-surface: #343d4b;
-  --theme-board: #232932;
-  --theme-ring: #8793a5;
+  --theme-board: #293241;
+  --theme-ring: #9eaab7;
 }
 
 /* Puzzle SVG itself */
@@ -290,4 +290,327 @@ svg circle.ring {
   #cube-3d-container {
     width: min(100%, 440px);
   }
+}
+
+
+/* =========================================
+   COMPACT RUBIK'S RINGS LAYOUT
+   ========================================= */
+
+#rings-game {
+  max-width: 1260px !important;
+  padding: 8px 14px 16px !important;
+}
+
+/* Title and theme settings on one row */
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 5px;
+}
+
+#rings-game .game-header h1 {
+  margin: 0 !important;
+  font-size: clamp(23px, 2.2vw, 30px);
+  line-height: 1.15;
+}
+
+.game-header .theme-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0 !important;
+}
+
+.game-header .theme-controls label {
+  gap: 6px;
+  font-size: 12px;
+}
+
+.game-header .theme-controls select {
+  padding: 5px 7px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+/* Hide unused face-control area */
+
+#face-controls {
+  display: none !important;
+  margin: 0 !important;
+}
+
+/* Compact button toolbar */
+
+#face-controls + div {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center;
+  flex-wrap: wrap !important;
+  gap: 5px 7px !important;
+  margin: 3px 0 5px !important;
+}
+
+#face-controls + div button {
+  min-height: 32px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+#face-controls + div label {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+#face-controls + div input[type="checkbox"] {
+  vertical-align: middle;
+}
+
+/* Playback speed slider */
+
+.solution-speed-control {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.solution-speed-control label {
+  white-space: nowrap;
+}
+
+#solution-speed {
+  width: 92px;
+  margin: 0;
+}
+
+#move-count {
+  margin: 0 0 0 4px !important;
+  font-size: 12px;
+}
+
+/* One-line instructions on desktop */
+
+#rings-game .puzzle-instructions {
+  max-width: none;
+  margin: 3px auto 4px !important;
+  font-size: 18px !important;
+  line-height: 2;
+  text-align: center;
+}
+
+/* Reduce space around status message */
+
+#rings-game #status {
+  min-height: 16px !important;
+  margin: 2px 0 4px !important;
+  font-size: 12px;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* Compact puzzle layout */
+
+#puzzle-layout {
+  gap: 12px;
+  align-items: center;
+}
+
+#puzzle-layout #board {
+  flex: 0 1 640px;
+  width: 100%;
+  max-height: min(65vh, 640px);
+  object-fit: contain;
+}
+
+#cube-3d-container {
+  flex: 0 1 440px;
+  height: min(56vh, 440px);
+  min-height: 260px;
+}
+
+#puzzle-layout:has(
+  #cube-3d-container[style*="block"]
+) #board {
+  flex-basis: 640px;
+}
+
+/* Responsive layout */
+
+@media (min-width: 751px) {
+  #rings-game .puzzle-instructions {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 750px) {
+  .game-header {
+    justify-content: center;
+  }
+
+  #rings-game .puzzle-instructions {
+    white-space: normal;
+  }
+
+  #puzzle-layout {
+    flex-direction: column;
+  }
+
+  #puzzle-layout #board {
+    max-height: 58vh;
+  }
+
+  #cube-3d-container {
+    width: min(100%, 440px);
+    height: 350px;
+  }
+}
+
+/* Header layout */
+
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-bottom: 8px;
+}
+
+.header-options {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+}
+
+.header-move-count,
+.header-3d-toggle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header-3d-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* Larger, consistent toolbar buttons */
+
+#face-controls + div button {
+  min-height: 39px;
+  padding: 8px 15px;
+  border-radius: 7px;
+  font-size: 18px;
+  line-height: 20px;
+}
+
+/* Slightly more room between controls */
+
+#face-controls + div {
+  gap: 7px 9px !important;
+  margin: 5px 0 7px !important;
+}
+
+/* Header theme controls */
+
+.game-header .theme-controls {
+  gap: 8px;
+}
+
+.game-header .theme-controls select {
+  font-size: 13px;
+  padding: 6px 8px;
+}
+
+/* Header: title left, move count center, settings right */
+
+.game-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.game-header h1 {
+  justify-self: start;
+}
+
+.game-header #move-count {
+  justify-self: center;
+  margin: 0 !important;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.game-header .theme-controls {
+  justify-self: end;
+  margin: 0 !important;
+  gap: 8px;
+}
+
+.game-header .header-options {
+  justify-self: end;
+}
+
+/* Group settings on the right */
+.game-header {
+  grid-template-columns: 1fr auto auto auto;
+}
+
+/* Dropdowns only show their selected value */
+
+.game-header .theme-controls select {
+  padding: 7px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+/* Responsive header */
+
+@media (max-width: 850px) {
+  .game-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+}
+
+#puzzle-layout {
+  background: var(--theme-board);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.game-footer {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: normal;
+  opacity: 0.65;
+}
+
+.game-footer a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.game-footer a:hover {
+  opacity: 1;
 }

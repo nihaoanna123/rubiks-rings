@@ -9,6 +9,7 @@ import {
 } from './cube-rotation.js';
 import { installDragControls } from './drag-controls.js';
 import { createCube3D } from './cube-3d.js';
+import { solveCube } from './cube-solver.js';
 
 let cube3D = null;
 
@@ -134,28 +135,40 @@ function installThemeControls() {
   const controls = document.createElement('div');
   controls.className = 'theme-controls';
 
-  controls.innerHTML = `
-    <label>
-      Appearance
-      <select id="appearance-select">
+    controls.innerHTML = `
+      <select id="appearance-select" aria-label="Appearance">
         <option value="light">Day mode</option>
         <option value="dark">Night mode</option>
       </select>
-    </label>
 
-    <label>
-      Bead theme
-      <select id="theme-select">
+      <select id="theme-select" aria-label="Bead theme">
         <option value="original">Original</option>
         <option value="classic">Classic Rubik's</option>
         <option value="Colorblind">Colorblind</option>
       </select>
-    </label>
-  `;
+    `;
 
-  const board = document.querySelector('svg');
-      const layout = document.querySelector('#puzzle-layout');
-    layout.parentElement.insertBefore(controls, layout);
+
+ const heading = document.querySelector('#rings-game h1');
+
+const header = document.createElement('div');
+header.className = 'game-header';
+
+heading.parentElement.insertBefore(header, heading);
+
+const headerOptions = document.createElement('div');
+headerOptions.className = 'header-options';
+
+headerOptions.append(
+  document.querySelector('#show-3d').closest('label')
+);
+
+header.append(
+  heading,
+  document.querySelector('#move-count'),
+  controls,
+  headerOptions
+);
 
   const appearanceSelect = controls.querySelector('#appearance-select');
   const themeSelect = controls.querySelector('#theme-select');
@@ -290,7 +303,15 @@ document.querySelector('#app').innerHTML = `
   ">by nihaoanna123</span>
 </h1>
 
+<label style="cursor: pointer">
+  <input id="show-3d" type="checkbox" checked>
+  Show 3D Model
+</label>
 
+<span id="move-count" style="
+  margin-left: 12px;
+  font-weight: 600;
+"></span>
 
     <div id="face-controls" style="
       display: flex;
@@ -322,30 +343,36 @@ document.querySelector('#app').innerHTML = `
 
       <button id="solve" type="button">Solve</button>
 
-      <button id="next-solution-step" type="button">
-          Next Step
-        </button>
+          <button id="previous-solution-step" type="button">
+      ◀ Previous Step
+    </button>
 
-      <label style="cursor: pointer">
-        <input id="show-ids" type="checkbox">
-        Bead IDs
+    <button id="next-solution-step" type="button">
+      Next Step ▶
+    </button>
+
+
+        <div class="solution-speed-control">
+      <label for="solution-speed">
+        Playback speed: <span id="solution-speed-value">1×</span>
       </label>
-
-            <label style="cursor: pointer">
-        <input id="show-3d" type="checkbox">
-        Show 3D Model
-      </label>
-
-      <span id="move-count" style="
-        margin-left: 12px;
-        font-weight: 600;
-      "></span>
+      <input
+        type="range"
+        id="solution-speed"
+        min="0.25"
+        max="3"
+        step="0.25"
+        value="1"
+      >
     </div>
+<button id="play-solution" type="button">
+      ▶ Play Solution
+    </button>
+    
 
         <p class="puzzle-instructions">
-      Drag the rings or beads to rotate them.
-      Left-click a center bead to turn that face counterclockwise.
-      Right-click a center bead to turn that face clockwise.
+      Drag the rings or beads to spin.
+      Left-click/Right-click on center bead to turn that face counterclockwise/clockwise.
     </p>
 
     <p id="status" style="
@@ -368,6 +395,15 @@ document.querySelector('#app').innerHTML = `
     </svg>
           <div id="cube-3d-container"></div>
     </div>
+
+<footer class="game-footer">
+  Thanks for playing! Inspired by Jagarikin's Rubik's Cube visualization ·
+  <a href="https://github.com/nihaoanna123"
+     target="_blank"
+     rel="noopener noreferrer">
+    GitHub
+  </a>
+</footer>
 
   </main>
 `;
@@ -423,7 +459,7 @@ for (const ring of rings) {
     cy: ring.y,
     r: ring.radius,
     fill: 'none',
-    stroke: '#6c7480',
+    stroke: 'var(--theme-ring)',
     'stroke-width': 2.5
   }, ringLayer);
 }
@@ -444,7 +480,7 @@ for (const sticker of cubeMapping) {
   const bead = svgElement('circle', {
     cx: position.x,
     cy: position.y,
-    r: 17,
+    r: 21,
     fill: COLORS[sticker.color],
     stroke: '#111318',
     'stroke-width': 2
@@ -632,7 +668,7 @@ function animateBeads(before, after, clockwise) {
 
   function frame(now) {
     const progress = Math.min(
-      (now - startedAt) / ANIMATION_DURATION,
+      (now - startedAt) / solutionAnimationDuration(),
       1
     );
 
@@ -713,8 +749,8 @@ function renderCube(animate = false) {
 
     if (animate) {
       bead.style.transition =
-        `cx ${ANIMATION_DURATION}ms ease-in-out, ` +
-        `cy ${ANIMATION_DURATION}ms ease-in-out`;
+        `cx ${solutionAnimationDuration()}ms ease-in-out, ` +
+        `cy ${solutionAnimationDuration()}ms ease-in-out`;
 
       label.style.transition =
         `x ${ANIMATION_DURATION}ms ease-in-out, ` +
@@ -925,6 +961,11 @@ document.querySelector('#board').prepend(defs);
 
 function performTurn(clockwise) {
   if (animationInProgress) return;
+  stopSolutionPlayback();
+    // Any manual turn invalidates the previously calculated solution.
+  solutionSteps = [];
+  solutionIndex = 0;
+  updateSolutionControls();
 
   const before = getBeadPositions();
 
@@ -949,7 +990,7 @@ function performTurn(clockwise) {
     `Moves: ${history.length}`;
 }
 
-const SCRAMBLE_LAYERS = [
+ const SCRAMBLE_LAYERS = [
   'yellow', 'red',
   'magenta', 'blue',
   'cyan', 'green',
@@ -958,8 +999,10 @@ const SCRAMBLE_LAYERS = [
 
 function scrambleCube() {
   if (animationInProgress) return;
+  stopSolutionPlayback();
     solutionSteps = [];
   solutionIndex = 0;
+  updateSolutionControls();
   solutionHistory = [];
   scrambleHistory = [];
 
@@ -1001,58 +1044,210 @@ function scrambleCube() {
   // Undo is disabled until the player makes a move.
 }
 
+
 let solutionSteps = [];
 let solutionIndex = 0;
+
+let solutionPlaying = false;
+let solutionTimer = null;
+
+let solutionSpeed = 1;
+
+const BASE_SOLUTION_ANIMATION = ANIMATION_DURATION;
+const BASE_SOLUTION_PAUSE = 150;
+
+function solutionAnimationDuration() {
+  return Math.round(BASE_SOLUTION_ANIMATION / solutionSpeed);
+}
+
+function solutionPauseDuration() {
+  return Math.round(BASE_SOLUTION_PAUSE / solutionSpeed);
+}
+
+const SOLUTION_PAUSE = 150;
+
+function stopSolutionPlayback() {
+  solutionPlaying = false;
+  clearTimeout(solutionTimer);
+  solutionTimer = null;
+
+  document.querySelector('#play-solution').textContent =
+    '▶ Play Solution';
+}
+
+function updateSolutionControls() {
+  document.querySelector('#previous-solution-step').disabled =
+    solutionIndex === 0;
+
+  document.querySelector('#next-solution-step').disabled =
+    solutionIndex >= solutionSteps.length;
+
+  document.querySelector('#play-solution').disabled =
+    solutionSteps.length === 0 ||
+    (solutionIndex >= solutionSteps.length && !solutionPlaying);
+}
+
+function updateSolutionStatus() {
+  if (solutionSteps.length === 0) {
+    status.textContent = 'No solution in progress.';
+  } else if (solutionIndex === solutionSteps.length) {
+    status.textContent =
+      `Solution complete! ${solutionSteps.length} steps.`;
+  } else {
+    status.textContent =
+      `Solution step ${solutionIndex} of ${solutionSteps.length}`;
+  }
+
+  updateSolutionControls();
+}
 
 function prepareSolution() {
   if (animationInProgress) return;
 
-  solutionSteps = [...solutionHistory]
-    .reverse()
-    .map(move => ({
-      face: move.face,
-      clockwise: !move.clockwise
-    }));
+  stopSolutionPlayback();
 
-  solutionIndex = 0;
+  try {
+    solutionSteps = solveCube(getBeadPositions());
+    solutionIndex = 0;
 
-  status.textContent =
-    `Solution ready: ${solutionSteps.length} steps.`;
-}
-
-function nextSolutionStep() {
-  if (animationInProgress) return;
-  if (solutionSteps.length === 0) {
-  status.textContent = 'No solution in progress.';
-  return;
-}
-
-  if (solutionIndex >= solutionSteps.length) {
-    status.textContent = 'Solution complete!';
-    return;
+    status.textContent = solutionSteps.length
+      ? `Solution ready: ${solutionSteps.length} steps.`
+      : 'Cube is already solved!';
+  } catch (error) {
+    console.error('Solver error:', error);
+    solutionSteps = [];
+    solutionIndex = 0;
+    status.textContent = `Solver error: ${error.message}`;
   }
 
-  const move = solutionSteps[solutionIndex];
+  updateSolutionControls();
+}
+
+function executeSolutionMove(move, reverse = false) {
+  const clockwise = reverse
+    ? !move.clockwise
+    : move.clockwise;
 
   selectedFace = move.face;
 
   const before = getBeadPositions();
 
-      if (cube3D) {
-      cube3D.animateTurn(move.face, move.clockwise, before, ANIMATION_DURATION);
-    }
+  if (cube3D) {
+    cube3D.animateTurn(
+      move.face,
+      clockwise,
+      before,
+      solutionAnimationDuration()
+    );
+  }
 
-  turnFace(move.face, move.clockwise);
+  turnFace(move.face, clockwise);
 
   const after = getBeadPositions();
 
-  animateBeads(before, after, move.clockwise);
+  animateBeads(before, after, clockwise);
+}
 
+function nextSolutionStep() {
+  if (animationInProgress) return false;
+
+  if (solutionIndex >= solutionSteps.length) {
+    updateSolutionStatus();
+    return false;
+  }
+
+  const move = solutionSteps[solutionIndex];
+
+  executeSolutionMove(move);
   solutionIndex++;
 
-  status.textContent =
-    `Solution step ${solutionIndex} of ${solutionSteps.length}`;
+  updateSolutionStatus();
+  return true;
 }
+
+function previousSolutionStep() {
+  if (animationInProgress) return false;
+
+  if (solutionIndex <= 0) {
+    updateSolutionStatus();
+    return false;
+  }
+
+  solutionIndex--;
+
+  const move = solutionSteps[solutionIndex];
+
+  executeSolutionMove(move, true);
+
+  updateSolutionStatus();
+  return true;
+}
+
+function scheduleNextSolutionStep() {
+  if (!solutionPlaying) return;
+
+  solutionTimer = setTimeout(() => {
+    if (!solutionPlaying) return;
+
+    if (animationInProgress) {
+      scheduleNextSolutionStep();
+      return;
+    }
+
+    const advanced = nextSolutionStep();
+
+    if (
+      !advanced ||
+      solutionIndex >= solutionSteps.length
+    ) {
+      stopSolutionPlayback();
+      updateSolutionControls();
+      return;
+    }
+
+    scheduleNextSolutionStep();
+  }, solutionAnimationDuration() + solutionPauseDuration());
+}
+
+function toggleSolutionPlayback() {
+  if (solutionPlaying) {
+    stopSolutionPlayback();
+    updateSolutionControls();
+    return;
+  }
+
+  if (animationInProgress) return;
+
+  if (solutionSteps.length === 0) {
+    status.textContent = 'Prepare a solution first.';
+    return;
+  }
+
+  // Replay from the beginning if already at the end.
+  // The user can use Previous Step to rewind.
+  if (solutionIndex >= solutionSteps.length) {
+    status.textContent =
+      'Use Previous Step to rewind before playing again.';
+    return;
+  }
+
+  solutionPlaying = true;
+
+  document.querySelector('#play-solution').textContent =
+    '⏸ Pause';
+
+  // Start immediately rather than waiting for the first timer.
+  const advanced = nextSolutionStep();
+
+  if (!advanced || solutionIndex >= solutionSteps.length) {
+    stopSolutionPlayback();
+    updateSolutionControls();
+    return;
+  }
+
+  scheduleNextSolutionStep();
+}
+
 
 // ============================================================
 // UNDO
@@ -1117,6 +1312,7 @@ document.querySelector('#redo')
 document.querySelector('#reset')
   .addEventListener('click', () => {
     if (animationInProgress) return;
+    stopSolutionPlayback();
     resetCube();
     history = [];
     solutionHistory = [];
@@ -1124,6 +1320,7 @@ document.querySelector('#reset')
 
     solutionSteps = [];
     solutionIndex = 0;
+    updateSolutionControls();
 
     renderCube();
     redoHistory.length = 0;
@@ -1133,18 +1330,16 @@ document.querySelector('#reset')
   });
 
 // ============================================================
-// BEAD LABELS
-// ============================================================
-
-document.querySelector('#show-ids')
-  .addEventListener('change', event => {
-    labelLayer.style.display =
-      event.target.checked ? '' : 'none';
-  });
-
-// ============================================================
 // KEYBOARD CONTROLS
 // ============================================================
+
+const speedSlider = document.querySelector('#solution-speed');
+const speedValue = document.querySelector('#solution-speed-value');
+
+speedSlider.addEventListener('input', () => {
+  solutionSpeed = Number(speedSlider.value);
+  speedValue.textContent = `${solutionSpeed}×`;
+});
 
 document.addEventListener('keydown', event => {
   if (event.repeat) return;
@@ -1173,7 +1368,21 @@ document.querySelector('#solve')
   .addEventListener('click', prepareSolution);
 
 document.querySelector('#next-solution-step')
-  .addEventListener('click', nextSolutionStep);
+  .addEventListener('click', () => {
+    stopSolutionPlayback();
+    nextSolutionStep();
+  });
+
+document.querySelector('#previous-solution-step')
+  .addEventListener('click', () => {
+    stopSolutionPlayback();
+    previousSolutionStep();
+  });
+
+document.querySelector('#play-solution')
+  .addEventListener('click', toggleSolutionPlayback);
+
+updateSolutionControls();
 
 // ============================================================
 // INITIALIZE
@@ -1235,6 +1444,9 @@ document.querySelector('#show-3d')
       container.style.display = 'none';
     }
   });
+  document.querySelector('#show-3d')
+  .dispatchEvent(new Event('change'));
+
 
 console.log('Rubik’s Rings playable puzzle ready');
 console.log('54 sticker positions:', positions.size);
