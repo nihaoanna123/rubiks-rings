@@ -457,11 +457,11 @@ function getStickerMove(beadId, dx, dy) {
 
       cubeGroup.rotateOnWorldAxis(
         cameraForward,
-        dx * 0.008
+        dx * 0.012
       );
     } else {
-      cubeGroup.rotateOnWorldAxis(cameraUp, dx * 0.008);
-      cubeGroup.rotateOnWorldAxis(cameraRight, dy * 0.008);
+      cubeGroup.rotateOnWorldAxis(cameraUp, dx * 0.012);
+      cubeGroup.rotateOnWorldAxis(cameraRight, dy * 0.012);
     }
   }
 
