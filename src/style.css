@@ -256,3 +256,38 @@ svg circle.ring {
 #move-count {
   margin: 6px 0;
 }
+
+#puzzle-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+}
+
+#puzzle-layout #board {
+  flex: 0 1 680px;
+  min-width: 0;
+  width: 100%;
+}
+
+#cube-3d-container {
+  display: none;
+  flex: 0 1 440px;
+  min-width: 0;
+  height: 440px;
+}
+
+#puzzle-layout:has(#cube-3d-container[style*="block"]) #board {
+  flex-basis: 600px;
+}
+
+@media (max-width: 750px) {
+  #puzzle-layout {
+    flex-direction: column;
+  }
+
+  #cube-3d-container {
+    width: min(100%, 440px);
+  }
+}

@@ -8,7 +8,9 @@ import {
   getBeadPositions
 } from './cube-rotation.js';
 import { installDragControls } from './drag-controls.js';
+import { createCube3D } from './cube-3d.js';
 
+let cube3D = null;
 
 const COLOR_THEMES = {
   original: {
@@ -117,6 +119,9 @@ function applyBeadTheme() {
 
     updateBeadSymbols();
   }
+      if (cube3D) {
+      cube3D.update(COLOR_THEMES[currentTheme]);
+    }
 
   localStorage.setItem('rings-theme', currentTheme);
 }
@@ -145,7 +150,8 @@ function installThemeControls() {
   `;
 
   const board = document.querySelector('svg');
-  board.parentElement.insertBefore(controls, board);
+      const layout = document.querySelector('#puzzle-layout');
+    layout.parentElement.insertBefore(controls, layout);
 
   const appearanceSelect = controls.querySelector('#appearance-select');
   const themeSelect = controls.querySelector('#theme-select');
@@ -321,6 +327,11 @@ document.querySelector('#app').innerHTML = `
         Bead IDs
       </label>
 
+            <label style="cursor: pointer">
+        <input id="show-3d" type="checkbox">
+        Show 3D Model
+      </label>
+
       <span id="move-count" style="
         margin-left: 12px;
         font-weight: 600;
@@ -337,7 +348,7 @@ document.querySelector('#app').innerHTML = `
       font-weight: bold;
       min-height: 22px;
     "></p>
-
+    <div id="puzzle-layout">
     <svg
       id="board"
       viewBox="0 0 ${WIDTH} ${HEIGHT}"
@@ -351,6 +362,8 @@ document.querySelector('#app').innerHTML = `
         style="pointer-events: none; display: none"
       ></g>
     </svg>
+          <div id="cube-3d-container"></div>
+    </div>
 
   </main>
 `;
@@ -720,6 +733,9 @@ function renderCube(animate = false) {
     history.length === 0;
 
 updateBeadSymbols();
+  if (cube3D) {
+    cube3D.update(COLOR_THEMES[currentTheme]);
+  }
 }
 
 // ============================================================
@@ -904,6 +920,10 @@ function performTurn(clockwise) {
 
   const before = getBeadPositions();
 
+      if (cube3D) {
+      cube3D.animateTurn(selectedFace, clockwise, before, ANIMATION_DURATION);
+    }
+
   turnFace(selectedFace, clockwise);
 
   const after = getBeadPositions();
@@ -1010,6 +1030,10 @@ function nextSolutionStep() {
 
   const before = getBeadPositions();
 
+      if (cube3D) {
+      cube3D.animateTurn(move.face, move.clockwise, before, ANIMATION_DURATION);
+    }
+
   turnFace(move.face, move.clockwise);
 
   const after = getBeadPositions();
@@ -1034,10 +1058,22 @@ document.querySelector('#undo')
     solutionHistory.pop();
     redoHistory.push(lastMove);
 
-    turnFace(lastMove.face, !lastMove.clockwise);
-    renderCube(true);
+    const before = getBeadPositions();
 
-    status.textContent = `Undid ${lastMove.face} turn`;
+  if (cube3D) {
+    cube3D.animateTurn(
+      lastMove.face,
+      !lastMove.clockwise,
+      before,
+      ANIMATION_DURATION
+    );
+  }
+
+  selectedFace = lastMove.face;
+  turnFace(lastMove.face, !lastMove.clockwise);
+  animateBeads(before, getBeadPositions(), !lastMove.clockwise);
+
+      status.textContent = `Undid ${lastMove.face} turn`;
   });
 
 document.querySelector('#redo')
@@ -1048,8 +1084,20 @@ document.querySelector('#redo')
     solutionHistory.push(move);
     history.push(move);
 
+    const before = getBeadPositions();
+
+    if (cube3D) {
+      cube3D.animateTurn(
+        move.face,
+        move.clockwise,
+        before,
+        ANIMATION_DURATION
+      );
+    }
+
+    selectedFace = move.face;
     turnFace(move.face, move.clockwise);
-    renderCube(true);
+    animateBeads(before, getBeadPositions(), move.clockwise);
 
     status.textContent = `Redid ${move.face} turn`;
   });
@@ -1147,6 +1195,28 @@ installDragControls({
 
 
 installThemeControls();
+
+document.querySelector('#show-3d')
+  .addEventListener('change', event => {
+    const container =
+      document.querySelector('#cube-3d-container');
+
+    if (event.target.checked) {
+      container.style.display = 'block';
+
+      if (!cube3D) {
+        cube3D = createCube3D(
+          container,
+          cubeMapping,
+          getBeadPositions
+        );
+      }
+
+      cube3D.update(COLOR_THEMES[currentTheme]);
+    } else {
+      container.style.display = 'none';
+    }
+  });
 
 console.log('Rubik’s Rings playable puzzle ready');
 console.log('54 sticker positions:', positions.size);
