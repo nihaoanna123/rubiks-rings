@@ -27,6 +27,13 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+
+      # Include the Lab Email Assistant in the published website
+      - name: Include Lab Email Assistant
+        run: |
+          mkdir -p dist/lab-email-assistant
+          cp -R lab-email-assistant/. dist/lab-email-assistant/
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
